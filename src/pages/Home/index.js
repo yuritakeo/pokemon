@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react"
-
 import api from '../../services/api'
 
 export default function Home(){
@@ -7,17 +6,11 @@ export default function Home(){
     
     async function handleCarregarLista(){
         const response = await api.get("https://pokeapi.co/api/v2/pokemon/")
-        const _pokemons = []
+        const _pokemons = await Promise.all(response.data.results.map(async (item) => {
+            const detailsResponse = await api.get(item.url)
+            return detailsResponse.data.name
+        }))
         
-        response.data.results.map((item) => {
-            async function handleCarregarDetalhes(){
-                const response = await api.get(item.url)
-                const poke = response.data.name
-                _pokemons.push(poke)
-                console.log(response.data.name)
-            }
-            handleCarregarDetalhes();
-        })
         setPokemons(_pokemons)
     }
 
@@ -33,10 +26,10 @@ export default function Home(){
             </ul>
             <button onClick={handleCarregarLista}>Adicionar</button>
             <button onClick={() =>{
-                const poke = "estatico poke"
+                const poke = "estático poke"
                 const _pokemons = [...pokemons, poke]
                 setPokemons(_pokemons)
-            }}>Atualizar (Botao Teste)</button>
+            }}>Atualizar (Botão Teste)</button>
         </div>
     )
 }
